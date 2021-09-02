@@ -1,0 +1,22 @@
+{
+  "name": "pruebas_iota",
+  "version": "1.0.0",
+  "description": "",
+  "main": "1.js",
+  "dependencies": {
+    "@iota/mam": "^0.7.3",
+    "@iota/mam.js": "^1.5.0",
+    "@types/node": "^12.7.5",
+    "express": "^4.17.1",
+    "iota.lib.js": "^0.5.2"
+  },
+  "devDependencies": {
+    "ts-node": "^8.5.4",
+    "typescript": "^3.5.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
