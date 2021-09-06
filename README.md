@@ -10,7 +10,6 @@ This repository contains the software expected to be running on PATIO, the IOT H
 
 - start_scb script setups the virtualenv, installs npm packages, and launch both processes mentioned above.
 
-- django_app contains the app that must be plugged into the backend for SaaS integration.
 
 ## Zenroom
 - Alternatively, Zenroom can be used instead of IOTA's MAM channels. For that, the smart contract is already wrapped into a Dockerfile under zenroom folder that needs to be build and running before launching the energy monitoring process:
