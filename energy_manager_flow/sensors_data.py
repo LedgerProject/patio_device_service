@@ -29,26 +29,27 @@ def get_sensor_value(sensor_id):
     elif config.IOTA_WATT_URL:
         session = requests.Session()
         latest_value = "0"
-        endpoint = ("query?select=[time.iso,%s]&begin=M&end=s&"
-                    "group=h&format=json&header=yes" % sensor_id)
+        endpoint = ("query?select=[time.iso,%s]&begin=s-1h&end=s&group=5s"
+                    "&format=json&header=yes" % sensor_id)
         iota_url = config.IOTA_WATT_URL + endpoint
+        # logging.info(iota_url)
 
         date = None
         latest_value = None
 
         try:
             response = session.get(iota_url, auth=config.IOTA_WATT_AUTH)
+            logs = response.json().get('data')
+            if logs:
+                date, recent_value = logs[-1]
+                if recent_value is not None:
+                    latest_value = str(recent_value)
         except requests.exceptions.Timeout:
             logging.error("Timeout when requesting %s", iota_url)
         except requests.exceptions.ConnectionError:
             logging.error("ConnectionError when requesting %s", iota_url)
         except requests.exceptions.RequestException as e:
             logging.error("Exception %s when requesting %s", str(e), iota_url)
-        else:
-            logs = response.json().get('data')
-            if logs:
-                date, latest_value = logs[-1]
-                latest_value = str(latest_value)
 
         return date, latest_value
 

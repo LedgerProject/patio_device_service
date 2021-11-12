@@ -85,16 +85,18 @@ class EnergyMonitor(object):
             for sensor in sensors:
                 value_date, value = sensors_data.get_sensor_value(
                     sensors[sensor])
-                
+
                 if value_date is not None:
                     date = datetime.strptime(value_date, '%Y-%m-%dT%H:%M:%S')
                     date = date.strftime(datetime_format)
-                
+
                 if value is None:
                     # Connection issues, continue and try later
+                    logging.info("Null value, retrying later")
                     continue
 
                 if float(value.replace(config.power_unit, '').strip()) <= 0.001:
+                    logging.info("Value lower than 0.001, ignoring")
                     continue
 
                 data = {"amount": value,
@@ -113,6 +115,7 @@ class EnergyMonitor(object):
                 response = requests.post("%s/energy/save" %
                                          config.base_backend_url,
                                          json=data)
+                # logging.info(response.json())
                 if not response.ok:
                     logging.error(response.content)
 
@@ -123,19 +126,26 @@ class EnergyMonitor(object):
 
     def save_to_DLT(self, data):
         saved_log_id = ""
-        if config.IOTA:
-            response = requests.get("http://localhost:3000",
-                                    params={"message": json.dumps(data)})
-            response = response.json()
-            saved_log_id = response['root']
-        else:  # Zenroom
-            response = requests.post(
-                "http://localhost:3300/api/patio_save_energy",
-                json={"data": {"dataToStore": data}
-                      }
-                                     )
-            response = response.json()
-            saved_log_id = response['log_tag']
+        try:
+            if config.IOTA:
+                response = requests.get("http://localhost:3000",
+                                        params={"message": json.dumps(data)})
+                response = response.json()
+                saved_log_id = response['root']
+            else:  # Zenroom
+                response = requests.post(
+                    "http://localhost:3300/api/patio_save_energy",
+                    json={"data": {"dataToStore": data}
+                        }
+                                        )
+                response = response.json()
+                saved_log_id = response['log_tag']
+        except requests.exceptions.Timeout:
+            logging.error("Timeout when requesting save to DLT")
+        except requests.exceptions.ConnectionError:
+            logging.error("ConnectionError when requesting save to DLT")
+        except requests.exceptions.RequestException as e:
+            logging.error("Exception %s when requesting  save to DLT", str(e))
 
         return saved_log_id
 

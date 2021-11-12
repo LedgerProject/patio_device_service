@@ -5,7 +5,11 @@
 # exit when any command fails
 set -e
 
-VENV_DIR="${HOME}/scb_env"
+# Pull the repository to get latest updates, this will work after
+# first checkout.
+git pull
+
+VENV_DIR="/opt/patio/scb_env"
 if [ ! -d "$VENV_DIR" ]; then
   echo "Creating virtual env..."
   python3.7 -m venv $VENV_DIR
@@ -24,6 +28,11 @@ BGPID=$!
 
 sleep 15
 cd ../energy_manager_flow
+
+# Download config file. This URL must be defined for each PATIO device,
+# ideally in an ENV variable
+wget https://storage.googleapis.com/miscellanius/PATIO/config.py.test -O config.py
+
 python main.py
 
 
